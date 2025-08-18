@@ -16,7 +16,7 @@ function MatrixRain() {
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
-    const letters = "MERN{}<>()=[];'./*-+ReactNodeMongoExpressJS";
+    const letters = "アァイィウヴエオカガキギクグケゲコゴサザシジスズセゼソゾABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const techIcons = [];
     const chars = [...letters.split(""), ...techIcons];
     const fontSize = 16;
@@ -214,19 +214,20 @@ export default function App() {
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
           onClick={() => setCurrentAction("SittingLaugh")}
         >
-          SittingLaugh
+        yendi vithi poone
         </button>
         <button
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
           onClick={() => setCurrentAction("Bow")}
         >
-          Bow
+         Kon'nichiwa
         </button>
         <button
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
           onClick={() => setCurrentAction("kick")}
         >
-          kick
+         break
+         <br /> MATRIX
         </button>
    
    
