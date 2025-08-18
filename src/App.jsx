@@ -54,23 +54,7 @@ function MatrixRain() {
   );
 }
 
-function CameraAnimation() {
-  const { camera } = useThree();
 
-  useEffect(() => {
-    camera.position.set(4, 7, 10);
-
-    gsap.to(camera.position, {
-      duration: 2,
-      z: 3,
-      y: 0,
-      x: 0,
-      ease: "power2.inOut",
-    });
-  }, [camera]);
-
-  return null;
-}
 
 // Enhanced Floating Label with tech stack
 function FloatingLabel() {
@@ -198,7 +182,7 @@ export default function App() {
         </group>
 
         <OrbitControls enableZoom={true} enablePan={true} />
-        <CameraAnimation />
+
           <CameraController currentAction={currentAction} /> 
       </Canvas>
 
