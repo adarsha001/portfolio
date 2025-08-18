@@ -121,8 +121,8 @@ function CameraController({ currentAction }) {
     } else if (currentAction === "kick") {
       gsap.to(camera.position, {
         duration: 1,
-        z: 5,
-        y: 1.5,
+        z: -5,
+        y: -1.5,
         x: 2,
         ease: "power2.inOut",
       });
@@ -181,7 +181,7 @@ export default function App() {
           <FloatingTechIcons />
         </group>
 
-        <OrbitControls enableZoom={true} enablePan={true} />
+        <OrbitControls enableDamping={false} enableZoom={true} enablePan={true} />
 
           <CameraController currentAction={currentAction} /> 
       </Canvas>
