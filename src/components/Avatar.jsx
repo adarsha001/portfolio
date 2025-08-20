@@ -42,7 +42,7 @@ export function Avatar({ currentAction, onClick, ...props }) {
     bow.animations[0],
     kick.animations[0],
     // praying.animations[0],
-    // flip.animations[0],
+    flip.animations[0],
   ]
   const { actions } = useAnimations(animations, clone)
 
