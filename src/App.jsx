@@ -1,5 +1,5 @@
 // App.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect,useRef } from "react";
 import { Canvas, useThree } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
 import { Avatar } from "./components/Avatar";
@@ -54,11 +54,42 @@ function MatrixRain() {
   );
 }
 
-// Enhanced Floating Label with tech stack
-function FloatingLabel() {
+// Enhanced Floating Label with tech stack - Updated with GSAP transition effects
+function FloatingLabel({ isTransitioning, currentPage }) {
+  const labelRef = useRef();
+  
+  useEffect(() => {
+    if (isTransitioning && currentPage === "home" && labelRef.current) {
+      // GSAP animation for scale up and forward movement
+      gsap.to(labelRef.current, {
+        duration: 2.2,
+        scale: 6,
+        z: 500,
+        opacity: 0,
+        ease: "power2.inOut",
+        transformOrigin: "center center",
+        onStart: () => {
+          // Add glow effect
+          labelRef.current.style.boxShadow = "0 0 30px rgba(0, 255, 0, 0.5)";
+        },
+        onComplete: () => {
+          // Reset styles after animation
+          labelRef.current.style.boxShadow = "";
+        }
+      });
+    }
+  }, [isTransitioning, currentPage]);
+
   return (
     <Html position={[0, 2.5, 0.6]} center>
-      <div className="px-6 py-3 bg-black/70 text-green-400 z-50 rounded-lg text-xl font-bold shadow-lg border border-green-400/30 text-center">
+      <div 
+        ref={labelRef}
+        className="px-6 py-3 bg-black/70 text-green-400 z-50 rounded-lg text-xl font-bold shadow-lg border border-green-400/30 text-center floating-label"
+        style={{ 
+          transformStyle: 'preserve-3d',
+          transform: 'translateZ(0)'
+        }}
+      >
         <div className="text-2xl mb-1">Adarsha</div>
         <div className="text-sm font-mono">MERN Stack Developer</div>
         <div className="flex justify-center gap-3 mt-2 text-xs">
@@ -71,7 +102,6 @@ function FloatingLabel() {
     </Html>
   );
 }
-
 // Tech stack floating around the avatar
 function FloatingTechIcons() {
   const icons = [
@@ -158,14 +188,15 @@ function CameraController({ currentAction, isZoomingOut }) {
 
   return null;
 }
-
 export default function App() {
   const [currentAction, setCurrentAction] = useState("Idle");
   const [showProjects, setShowProjects] = useState(false);
   const [currentPage, setCurrentPage] = useState("home");
   const [isTransitioning, setIsTransitioning] = useState(false);
   const [isZoomingOut, setIsZoomingOut] = useState(false);
-  const [flashIntensity, setFlashIntensity] = useState(0); // For white flash effect
+  const [flashIntensity, setFlashIntensity] = useState(0);
+  const [activeSection, setActiveSection] = useState(0); // Track which section is active
+  const secondPageRef = useRef(null);
 
   // MERN stack projects data
   const projects = [
@@ -181,6 +212,34 @@ export default function App() {
       url: "https://sppropertiesbengaluru.com/",
       description: "Real estate property showcase website"
     },
+  ];
+
+  // Sections for the second page
+  const sections = [
+    {
+      title: "About Me",
+      content: "I'm a passionate MERN stack developer with expertise in building modern web applications.",
+      avatarPosition: [0, -3, 0],
+      avatarAction: "Idle"
+    },
+    {
+      title: "My Skills",
+      content: "React, Node.js, MongoDB, Express, JavaScript, Three.js, and more...",
+      avatarPosition: [1, -3, -1],
+      avatarAction: "SittingLaugh"
+    },
+    {
+      title: "Experience",
+      content: "5+ years of experience in web development with various startups and enterprises.",
+      avatarPosition: [-1, -3, 1],
+      avatarAction: "Bow"
+    },
+    {
+      title: "Contact",
+      content: "Get in touch with me for collaborations or project discussions.",
+      avatarPosition: [0, -3, 2],
+      avatarAction: "kick"
+    }
   ];
 
   // Function to navigate to second page
@@ -205,10 +264,9 @@ export default function App() {
             duration: 0.1,
             opacity: 0,
             onComplete: () => {
-              setCurrentAction("Idle"); // Return to idle after animation
+              setCurrentAction("Idle");
               setCurrentPage("second");
               setIsTransitioning(false);
-              // setIsZoomingOut(false);
               
               // Fade out the white flash after page transition is complete
               gsap.to({}, {
@@ -220,7 +278,7 @@ export default function App() {
           });
         }
       });
-    }, 1500); // Wait for zoom animation to complete
+    }, 1500);
   };
 
   // Function to return to home page
@@ -242,7 +300,7 @@ export default function App() {
             setCurrentPage("home");
             setIsTransitioning(false);
             setCurrentAction("Idle");
-            
+            setIsZoomingOut(true)
             // Fade out the white flash after page transition is complete
             gsap.to({}, {
               duration: 0.5,
@@ -254,6 +312,35 @@ export default function App() {
       }
     });
   };
+
+  // Handle scroll for second page sections
+  useEffect(() => {
+    if (currentPage !== "second") return;
+
+    const handleScroll = () => {
+      const scrollContainer = secondPageRef.current;
+      if (!scrollContainer) return;
+
+      const scrollPosition = scrollContainer.scrollTop;
+      const sectionHeight = scrollContainer.clientHeight;
+      const currentSection = Math.floor(scrollPosition / sectionHeight);
+
+      if (currentSection !== activeSection) {
+        setActiveSection(currentSection);
+        
+        // Update avatar position and action based on the current section
+        if (sections[currentSection]) {
+          setCurrentAction(sections[currentSection].avatarAction);
+        }
+      }
+    };
+
+    const scrollContainer = secondPageRef.current;
+    if (scrollContainer) {
+      scrollContainer.addEventListener("scroll", handleScroll);
+      return () => scrollContainer.removeEventListener("scroll", handleScroll);
+    }
+  }, [currentPage, activeSection]);
 
   return (
     <div className="w-screen h-screen relative overflow-hidden">
@@ -282,14 +369,14 @@ export default function App() {
         <directionalLight position={[5, 5, 1]} color="#0F0" intensity={2} />
         <pointLight position={[0, 2, 2]} color="#0F0" intensity={0.3} />
 
-        <group position-y={currentPage === "second" ? -3 : -1}>
+        <group position={currentPage === "second" ? sections[activeSection]?.avatarPosition || [0, -3, 0] : [0, -1, 0]}>
           <Avatar
             currentAction={currentAction}
             onClick={() => setCurrentAction("Idle")}
           />
           {currentPage === "home" && (
             <>
-              <FloatingLabel />
+              <FloatingLabel isTransitioning={isTransitioning} currentPage={currentPage} />
               <FloatingTechIcons />
             </>
           )}
@@ -312,7 +399,7 @@ export default function App() {
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
           onClick={() => setCurrentAction("SittingLaugh")}
         >
-          yendi vithi poone
+          Laugh
         </button>
         <button
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
@@ -324,8 +411,7 @@ export default function App() {
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
           onClick={() => setCurrentAction("kick")}
         >
-          break
-          <br /> MATRIX
+          Break Matrix
         </button>
         
         {/* Navigation Button */}
@@ -334,7 +420,7 @@ export default function App() {
           onClick={currentPage === "home" ? goToSecondPage : goToHomePage}
           disabled={isTransitioning}
         >
-          {currentPage === "home" ? "Go to Second Page" : "Return Home"}
+          {currentPage === "home" ? "Go to Portfolio" : "Return Home"}
         </button>
       </div>
 
@@ -374,11 +460,44 @@ export default function App() {
         </div>
       )}
 
-      {/* Second Page Content */}
+      {/* Second Page Content with Scrollable Sections */}
       {currentPage === "second" && (
-        <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-15 text-center">
-          <h2 className="text-4xl font-bold text-white mb-4">Welcome to the Second Page</h2>
-          <p className="text-xl text-gray-300">The model has moved down and the background is now black.</p>
+        <div 
+          ref={secondPageRef}
+          className="absolute top-0 left-0 w-full h-full z-15 overflow-y-auto scroll-smooth"
+          style={{ scrollBehavior: 'smooth' }}
+        >
+          {sections.map((section, index) => (
+            <div 
+              key={index} 
+              className="h-screen flex flex-col justify-center items-center px-10 text-center"
+              style={{ 
+                opacity: activeSection === index ? 1 : 0.3,
+                transition: 'opacity 0.5s ease'
+              }}
+            >
+              <h2 className="text-4xl font-bold text-green-400 mb-6">{section.title}</h2>
+              <p className="text-xl text-gray-300 max-w-2xl">{section.content}</p>
+              
+              {/* Section indicator */}
+              <div className="fixed right-10 top-1/2 transform -translate-y-1/2 flex flex-col gap-2">
+                {sections.map((_, i) => (
+                  <button
+                    key={i}
+                    className={`w-4 h-4 rounded-full border border-green-400 transition-all ${
+                      activeSection === i ? 'bg-green-400 scale-125' : 'bg-transparent'
+                    }`}
+                    onClick={() => {
+                      secondPageRef.current.scrollTo({
+                        top: i * window.innerHeight,
+                        behavior: 'smooth'
+                      });
+                    }}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 
@@ -391,8 +510,18 @@ export default function App() {
         .animate-float {
           animation: float 3s ease-in-out infinite;
         }
+        
         .matrix-canvas {
           transition: opacity 1.5s ease-in-out;
+        }
+        
+        /* Hide scrollbar for second page but keep functionality */
+        .overflow-y-auto {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .overflow-y-auto::-webkit-scrollbar {
+          display: none;
         }
       `}</style>
     </div>
