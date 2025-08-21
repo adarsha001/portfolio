@@ -399,11 +399,7 @@ export default function App() {
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
           onClick={() => setCurrentAction("SittingLaugh")}
         >
-<<<<<<< HEAD
-          Laugh
-=======
-          laugh
->>>>>>> 5eb3242cbe0a9868eeda80def5200d2adde9e97f
+laugh
         </button>
         <button
           className="px-4 py-2 bg-green-400/20 text-green-400 rounded hover:bg-green-400/30 transition"
